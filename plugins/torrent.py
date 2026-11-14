@@ -31,6 +31,7 @@ async def download_torrent(handle, index, message, save_path=DOWNLOAD_DIR):
             total=total_size,
             start_time=start_time,
             message=message,
+            handle=handle,
             status=f"Downloading {files.file_path(index)}",
         )
 

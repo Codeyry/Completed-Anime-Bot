@@ -17,6 +17,8 @@ cache/
 *.log
 logs/
 
+.vscode/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -225,3 +227,4 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+.vscode/settings.json
