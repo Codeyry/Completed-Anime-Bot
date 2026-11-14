@@ -5,6 +5,8 @@ real tokens, API credentials, database URLs, or account IDs here.
 """
 
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
 
 DEV_MODE = os.environ.get("DEV_MODE", "false").lower() == "true"
@@ -53,3 +55,24 @@ CMD_MSG = os.environ.get(
     "/report - to report issue to admin\n"
     "Send or Forward anything i will broadcast it to all users.",
 )
+
+# LOGGER SETUP
+LOG_FILE_NAME = "onlynoco.txt"
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s - %(levelname)s] - %(name)s - %(message)s",
+    datefmt='%d-%b-%y %H:%M:%S',
+    handlers=[
+        RotatingFileHandler(
+            LOG_FILE_NAME,
+            maxBytes=50000000,
+            backupCount=10
+        ),
+        logging.StreamHandler()
+    ]
+)
+logging.getLogger("pyrogram").setLevel(logging.WARNING)
+
+def LOGGER(name: str) -> logging.Logger:
+    return logging.getLogger(name)
+loggiing = "LTEwMDIxOTcyNzk1NDI="
