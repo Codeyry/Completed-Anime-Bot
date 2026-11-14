@@ -14,7 +14,7 @@ BOT_TOKEN = os.environ["BOT_TOKEN"]
 API_ID = int(os.environ["API_ID"])
 API_HASH = os.environ["API_HASH"]
 OWNER_ID = int(os.environ["OWNER_ID"])
-DB_CHANNEL_ID = int(os.environ["DB_CHANNEL"])
+DB_CHANNEL_ID = int(os.environ["DB_CHANNEL_ID"])
 DB_URL = os.environ["DB_URL"]
 DB_NAME = os.environ.get("DB_NAME", "Animeyry")
 
