@@ -1,31 +1,33 @@
 import time
 from pyrogram.errors import MessageNotModified, MessageIdInvalid
 
-# progress bar function
 LAST_UPDATE_TIME = 0
+
 async def progress_bar(current, total, start_time, message, status, handle):
     global LAST_UPDATE_TIME
+
     CURRENT_TIME = time.time()
     DELAY = 5
 
-    # libtorrent info status 
-    torrent_status = handle.status()
-
     if CURRENT_TIME - LAST_UPDATE_TIME < DELAY:
         return
+
     LAST_UPDATE_TIME = CURRENT_TIME
 
-    elapsed = time.time() - start_time
+    torrent_status = handle.status()
+
+    elapsed = CURRENT_TIME - start_time
     percent = (current / total) * 100 if total else 0
 
     bar_length = 10
     filled_bar = int(bar_length * percent / 100)
     bar = "▣" * filled_bar + "▢" * (bar_length - filled_bar)
 
-    speed = current / elapsed if elapsed > 0 else 0
+    speed = torrent_status.download_rate
     speed_in_mb = speed / (1024 * 1024)
 
     eta = (total - current) / speed if speed > 0 else 0
+
     downloaded_in_mb = current / (1024 * 1024)
     total_in_mb = total / (1024 * 1024)
 
@@ -44,4 +46,4 @@ async def progress_bar(current, total, start_time, message, status, handle):
     try:
         await message.edit_text(prog_text)
     except (MessageNotModified, MessageIdInvalid):
-        pass  # ignore these safely
+        pass
