@@ -14,6 +14,13 @@ import os
 async def download_torrent(handle, index, message, save_path=DOWNLOAD_DIR):
     files = handle.torrent_file().files()
 
+    # Disable downloading all files.
+    priorities = [0] * files.num_files()
+
+    # Download only the selected episode.
+    priorities[index] = 7
+    handle.prioritize_files(priorities)
+
 
     filename = files.file_path(index)
     start_time = time.time()
@@ -21,7 +28,7 @@ async def download_torrent(handle, index, message, save_path=DOWNLOAD_DIR):
     file_path = os.path.join(save_path, filename)
 
 
-        # Wait until this episode finishes downloading.
+    # Wait until this episode finishes downloading.
     while True:
         file_progress = await asyncio.to_thread(handle.file_progress)
         current = file_progress[index]
