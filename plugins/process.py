@@ -4,7 +4,6 @@ from pyrogram import client, filters
 from .torrent import download_torrent
 import asyncio
 import libtorrent as lt
-import requests
 import os, time
 
 from config import DB_CHANNEL_ID, DOWNLOAD_DIR
