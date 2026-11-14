@@ -9,7 +9,7 @@ async def progress_bar(current, total, start_time, message, status, handle):
     DELAY = 5
 
     # libtorrent info status 
-    status = handle.status()
+    torrent_status = handle.status()
 
     if CURRENT_TIME - LAST_UPDATE_TIME < DELAY:
         return
@@ -32,10 +32,10 @@ async def progress_bar(current, total, start_time, message, status, handle):
     prog_text = (
         f"┌• {status} ~ {int(elapsed)}s\n"
         f"├• {bar}\n{percent:.2f}%\n"
-        f"├• PEERS: {status.num_peers}\n"
-        f"├• SEEDS: {status.num_seeds}\n"
-        f"├• Download: {status.download_rate / 1024:.2f} KB/s\n"
-        f"├• Upload: {status.upload_rate / 1024:.2f} KB/s\n"
+        f"├• PEERS: {torrent_status.num_peers}\n"
+        f"├• SEEDS: {torrent_status.num_seeds}\n"
+        f"├• Download: {torrent_status.download_rate / 1024:.2f} KB/s\n"
+        f"├• Upload: {torrent_status.upload_rate / 1024:.2f} KB/s\n"
         f"├• SIZE: {downloaded_in_mb:.2f} MB of {total_in_mb:.2f} MB\n"
         f"├• SPEED: {speed_in_mb:.2f} MB/s\n"
         f"└• ETA: {int(eta)}s"
