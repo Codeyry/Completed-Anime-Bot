@@ -76,6 +76,7 @@ async def process_entry(client, entry, entry_id: str):
                 progress=progress_bar,
                 progress_args=(
                     message,
+                    handle,
                     time.time(),
                     f"Uploading {file_path.name}" 
                     # total and current not needed because pyrogram provides it

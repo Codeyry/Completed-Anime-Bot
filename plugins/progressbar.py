@@ -3,10 +3,13 @@ from pyrogram.errors import MessageNotModified, MessageIdInvalid
 
 # progress bar function
 LAST_UPDATE_TIME = 0
-async def progress_bar(current, total, start_time, message, status):
+async def progress_bar(current, total, start_time, message, status, handle):
     global LAST_UPDATE_TIME
     CURRENT_TIME = time.time()
-    DELAY = 3
+    DELAY = 5
+
+    # libtorrent info status 
+    status = handle.status()
 
     if CURRENT_TIME - LAST_UPDATE_TIME < DELAY:
         return
@@ -29,6 +32,10 @@ async def progress_bar(current, total, start_time, message, status):
     prog_text = (
         f"┌• {status} ~ {int(elapsed)}s\n"
         f"├• {bar}\n{percent:.2f}%\n"
+        f"├• PEERS: {status.num_peers}\n"
+        f"├• SEEDS: {status.num_seeds}\n"
+        f"├• Download: {status.download_rate / 1024:.2f} KB/s\n"
+        f"├• Upload: {status.upload_rate / 1024:.2f} KB/s\n"
         f"├• SIZE: {downloaded_in_mb:.2f} MB of {total_in_mb:.2f} MB\n"
         f"├• SPEED: {speed_in_mb:.2f} MB/s\n"
         f"└• ETA: {int(eta)}s"
