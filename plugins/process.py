@@ -42,7 +42,7 @@ session = lt.session({
 async def process_entry(client, entry, entry_id: str):
     try:
         anime_name = extract_anime_name(entry.get("category"))
-        result = get_cover_and_anime_id(anime_name)
+        result = await get_cover_and_anime_id(anime_name)
 
         magnet_link = entry.get("link")
         # check that magnet_url if its a valid magnet link or not. 
