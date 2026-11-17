@@ -3,6 +3,7 @@ kurigram[fast]
 
 #--http requests handling--#
 aiohttp
+requests
 
 #--make pyrogram more fast--#
 #tgcrypto

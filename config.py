@@ -17,6 +17,7 @@ API_ID = int(os.environ["API_ID"])
 API_HASH = os.environ["API_HASH"]
 OWNER_ID = int(os.environ["OWNER_ID"])
 DB_CHANNEL_ID = int(os.environ["DB_CHANNEL_ID"])
+POST_CHANNEL_ID = int(os.environ.get("POST_CHANNEL_ID", "-1002253609533"))
 DB_URL = os.environ["DB_URL"]
 DB_NAME = os.environ.get("DB_NAME", "Animeyry")
 
@@ -27,6 +28,7 @@ DOWNLOAD_DIR = os.environ.get("DOWNLOAD_DIR", "./downloads")
 MONITOR_TIME = int(os.environ.get("MONITOR_TIME", "3600"))
 RSS_URL = os.environ.get("RSS_URL", "https://subsplease.org/rss/?r=720")
 BROADCAST_DELETE_TIME = int(os.environ.get("BROADCAST_DELETE_TIMED", "1800"))
+BOT_USERNAME = "AlyaFileStoreBot"
 
 START_PIC = os.environ.get("START_PIC", "https://envs.sh/bjb.mp4 https://envs.sh/bjP.mp4 https://envs.sh/bjw.mp4 https://envs.sh/bj0.mp4 https://envs.sh/bjS.mp4 https://envs.sh/bjW.mp4 https://envs.sh/bjB.mp4 https://envs.sh/bjI.mp4 https://envs.sh/bjn.mp4 https://envs.sh/bjT.mp4 https://envs.sh/bjZ.mp4 https://envs.sh/bjL.mp4 https://envs.sh/bj5.mp4 https://envs.sh/bjY.mp4 https://envs.sh/bjC.mp4").split(" ")
 START_MSG = os.environ.get(
