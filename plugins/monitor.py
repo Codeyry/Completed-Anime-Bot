@@ -6,6 +6,9 @@ from database.database import is_entry_already_processed
 from plugins.process import process_entry
 
 async def rss_monitor(session, client):
+    processed = False
+
+
     try:
         async with session.get(RSS_URL) as response:
             if response.status == 304:
@@ -31,6 +34,9 @@ async def rss_monitor(session, client):
                 continue
 
             await process_entry(client, entry, entry_id)
+
+        return processed
+        
     except Exception as e:
         print(f"error on rss_monitor {e}")
 

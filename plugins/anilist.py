@@ -30,5 +30,5 @@ async def get_cover_and_anime_id(anime_name: str) -> dict | None:
     return {
         "id": media["id"],
         "cover": media["coverImage"]["large"] if media["coverImage"] else None,
-        "description": media.get["description"][:200] if len(media.get["description"]) > 200 else "Description failed successfully :("
+        "description": media.get("description")[:200] if len(media.get("description")) > 200 else "Description failed successfully :("
     }   

@@ -169,5 +169,6 @@ async def process_entry(client, entry, entry_id: str):
         finally:
             handle.pause()
             session.remove_torrent(handle)
-    except Exception as e:
-        print(f"{e}")
+    except Exception:
+        import traceback
+        traceback.print_exc()

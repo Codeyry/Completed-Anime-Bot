@@ -26,6 +26,7 @@ WORKER = int(os.environ.get("WORKER", "4"))
 PORT = int(os.environ.get("PORT", "8080"))
 DOWNLOAD_DIR = os.environ.get("DOWNLOAD_DIR", "./downloads")
 MONITOR_TIME = int(os.environ.get("MONITOR_TIME", "3600"))
+SHORT_SLEEP = 60
 RSS_URL = os.environ.get("RSS_URL", "https://subsplease.org/rss/?r=720")
 BROADCAST_DELETE_TIME = int(os.environ.get("BROADCAST_DELETE_TIMED", "1800"))
 BOT_USERNAME = "AlyaFileStoreBot"

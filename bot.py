@@ -11,7 +11,7 @@ pyrogram.utils.MIN_CHANNEL_ID = -1009147483647 # type: ignore
 import aiohttp
 import asyncio
 
-from config import API_HASH, API_ID, BOT_TOKEN, WORKER, PORT, LOGGER, MONITOR_TIME, DEV_MODE
+from config import API_HASH, API_ID, BOT_TOKEN, WORKER, PORT, LOGGER, MONITOR_TIME, DEV_MODE, SHORT_SLEEP
 from plugins.monitor import rss_monitor
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__)))
@@ -77,14 +77,21 @@ class Bot(Client):
         notified = False
         async with aiohttp.ClientSession(timeout=timeout) as session:
             while True:
-                if self.rss_enabled:
-                    await rss_monitor(session, self)
-                    await asyncio.sleep(MONITOR_TIME)
+                if not self.rss_enabled:
+                    await asyncio.sleep(30)
+                    continue
                 elif not notified:
-                    await self.send_message(OWNER_ID, "RSS NOT ENABELED")
+                    await self.send_message(OWNER_ID, f"RSS NOT ENABELED, WAIT ({SHORT_SLEEP / 60} MIN)")
                     notified = True
+
+                result = await rss_monitor(session, self)
                 
-                await asyncio.sleep(MONITOR_TIME)
+                if result is False:
+                    await asyncio.sleep(MONITOR_TIME)  # 1 hour
+                else:
+                    await asyncio.sleep(SHORT_SLEEP)
+
+                await asyncio.sleep(SHORT_SLEEP)
                 
 
     
