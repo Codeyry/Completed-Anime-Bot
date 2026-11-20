@@ -37,7 +37,7 @@ async def start_command(client: Client, message: Message):
   await message.reply_photo(
     photo = photo,
     caption = START_MSG.format(
-      mention = message.from_user.mention),
+    mention = message.from_user.mention),
     reply_markup = reply_btns
   )
   
@@ -91,3 +91,4 @@ async def callback_queries(client: Bot, query: CallbackQuery):
                 ]
             )
         )
+

@@ -1,3 +1,4 @@
+from config import OWNER_ID
 from aiohttp import web
 from plugins import web_server
 from pyrogram.client import Client
@@ -38,6 +39,7 @@ class Bot(Client):
             bot_token=BOT_TOKEN
         )
         self.LOGGER = LOGGER
+        self.rss_enabled = False
 
     async def start(self, *args, **kwargs):
         await super().start(*args, **kwargs)
@@ -72,13 +74,19 @@ class Bot(Client):
 
     async def rss_loop_run(self):
         timeout = aiohttp.ClientTimeout(total=30)
+        notified = False
         async with aiohttp.ClientSession(timeout=timeout) as session:
             while True:
-                await rss_monitor(session, self)
+                if self.rss_enabled:
+                    await rss_monitor(session, self)
+                    await asyncio.sleep(MONITOR_TIME)
+                elif not notified:
+                    await self.send_message(OWNER_ID, "RSS NOT ENABELED")
+                    notified = True
+                
                 await asyncio.sleep(MONITOR_TIME)
+                
 
-
-        
     
 
     async def stop(self, *args):

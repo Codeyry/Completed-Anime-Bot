@@ -10,6 +10,14 @@ def encode(text: str) -> str:
   return base64.urlsafe_b64encode(text.encode()).decode()
 
 
+async def decode(base64_string):
+    base64_string = base64_string.strip("=") # links generated before this commit will be having = sign, hence striping them to handle padding errors.
+    base64_bytes = (base64_string + "=" * (-len(base64_string) % 4)).encode("ascii")
+    string_bytes = base64.urlsafe_b64decode(base64_bytes)
+    string = string_bytes.decode("ascii")
+    return string
+
+
 async def link_gen_batch(first_file, last_file):
   try:
     encoded = encode(f"get-{first_file.id * abs(DB_CHANNEL_ID)-{last_file.id * abs(DB_CHANNEL_ID)}}")
