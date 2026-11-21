@@ -41,7 +41,7 @@ async def rss_monitor(session, client):
             logger.info("Processing RSS entry %s", entry_id)
             await process_entry(client, entry, entry_id)
 
-        processed = True
+            processed = True
         return processed
 
     except Exception:
