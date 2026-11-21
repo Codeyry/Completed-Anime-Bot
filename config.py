@@ -35,13 +35,13 @@ START_PIC = os.environ.get("START_PIC", "https://envs.sh/bjb.mp4 https://envs.sh
 ANIME_POST_TEMPLATE = os.environ.get(
     "ANIME_POST_TEMPLATE",
     "<blockquote>{anime_name} [BATCH]</blockquote>\n\n"
-    "──────────────────────"
-    "➤ EPs: {eps}"
-    "➤ Audio: Japanese & English [Sub]"
-    "➤ Quality: 720p RAW"
-    "➤ Size: {size}"
-    "──────────────────────"
-    "<b>Plot: {plot}</b>"
+    "──────────────────────\n"
+    "➤ EPs: {eps}\n"
+    "➤ Audio: Japanese & English [Sub]\n"
+    "➤ Quality: 720p RAW\n"
+    "➤ Size: {size}\n"
+    "──────────────────────\n"
+    "<blockquote expandable><b>Plot:</b> {plot}</blockquote>"
 )
 START_MSG = os.environ.get(
     "START_MSG",
