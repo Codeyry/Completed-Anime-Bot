@@ -1,6 +1,7 @@
-from config import DB_URL, DB_NAME
+from config import DB_URL, DB_NAME, LOGGER
 from pymongo import AsyncMongoClient
 
+logger = LOGGER(__name__)
 
 # clients setup 
 _client = AsyncMongoClient(DB_URL) 
@@ -27,8 +28,25 @@ async def del_user(user_id: int):
 
 
 # check if any entry is already processed or not 
+# async def is_entry_already_processed(entry_id: int):
+#   cursor = _entries.find({}, {"_id": entry_id}).limit(1)
+#   return bool(await cursor.to_list(length=1))
+
 async def is_entry_already_processed(entry_id: str) -> bool:
-  return await _entries.find_one({"_id": entry_id}) is not None
+    logger.info("ENTRY CHECK: %r", entry_id)
+
+    try:
+        result = await _entries.count_documents(
+            {"_id": entry_id},
+            limit=1
+        )
+
+        logger.info("ENTRY CHECK RESULT: %s", result)
+        return result > 0
+
+    except Exception:
+        logger.exception("ENTRY CHECK FAILED")
+        raise
 
 
 
@@ -36,9 +54,9 @@ async def is_entry_already_processed(entry_id: str) -> bool:
 # mark item to be already processed
 async def mark_entry(entry_id: str):
     await _entries.update_one(
-      {"_id": entry_id},
-      {"$setOnInsert": {"processed": True}},
-      upsert=True
+        {"_id": entry_id},
+        {"$setOnInsert": {"processed": True}},
+        upsert=True
     )
 
 

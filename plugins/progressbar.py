@@ -1,5 +1,8 @@
 import time
 from pyrogram.errors import MessageNotModified, MessageIdInvalid
+from config import LOGGER, DEV_MODE
+
+logger = LOGGER(__name__)
 
 LAST_UPDATE_TIME = 0
 
@@ -10,6 +13,7 @@ async def progress_bar(current, total, start_time, message, status, handle):
     DELAY = 5
 
     if CURRENT_TIME - LAST_UPDATE_TIME < DELAY:
+        logger.debug("Progress update skipped within %ss throttle", DELAY)
         return
 
     LAST_UPDATE_TIME = CURRENT_TIME
@@ -45,5 +49,6 @@ async def progress_bar(current, total, start_time, message, status, handle):
 
     try:
         await message.edit_text(prog_text)
+        logger.debug("Progress updated: %s %.2f%%", status, percent)
     except (MessageNotModified, MessageIdInvalid):
-        pass
+        logger.debug("Progress message was unchanged or no longer valid")

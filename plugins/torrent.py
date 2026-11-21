@@ -8,6 +8,7 @@ from .progressbar import progress_bar
 import os 
 from pathlib import PurePosixPath
 
+logger = LOGGER(__name__)
 
 
 
@@ -24,12 +25,13 @@ def clean_filename(filename: str) -> str:
 
 async def download_torrent(handle, index, message, save_path=DOWNLOAD_DIR):
 
+    logger.info("Preparing torrent file index %s", index)
     files = handle.torrent_file().files()
     filename = files.file_path(index)
-    print("filename org: ", filename)
+    logger.debug("Original torrent path: %s", filename)
     path = PurePosixPath(filename)
     new_filename = str(path.parent / clean_filename(path.name))
-    print(f"here: {path.parent} **** {path.name}")
+    logger.debug("Normalized torrent path: %s/%s", path.parent, path.name)
 
     # filename org:  [SubsPlease] Vinland Saga S2 (01-24) (720p) [Batch]/[SubsPlease] Vinland Saga S2 - 01v2 (720p) [CB08CBAA].mkv
     # here: [SubsPlease] Vinland Saga S2 (01-24) (720p) [Batch] **** [SubsPlease] Vinland Saga S2 - 01v2 (720p) [CB08CBAA].mkv
@@ -40,6 +42,7 @@ async def download_torrent(handle, index, message, save_path=DOWNLOAD_DIR):
 
     # edit file name
     handle.rename_file(index, new_filename)
+    logger.debug("Renamed torrent file to %s", new_filename)
 
     # Disable downloading all files.
     priorities = [0] * files.num_files()
@@ -47,6 +50,7 @@ async def download_torrent(handle, index, message, save_path=DOWNLOAD_DIR):
     # Download only the selected episode.
     priorities[index] = 7
     handle.prioritize_files(priorities)
+    logger.debug("Prioritized file index %s for download", index)
 
 
     # Wait until this episode finishes downloading.
@@ -55,15 +59,14 @@ async def download_torrent(handle, index, message, save_path=DOWNLOAD_DIR):
 
         if DEV_MODE:
             file_progress = handle.file_progress()
-
-            print("\n--- TORRENT DEBUG ---")
+            logger.debug("Torrent file progress snapshot")
             for i in range(files.num_files()):
-                LOGGER(__name__).info(
+                logger.debug(
+                    "Torrent file %s: %s",
                     files.file_path(i),
                     f"{file_progress[i] / files.file_size(i) * 100:.2f}%"
                     if files.file_size(i) else "0%"
                 )
-            LOGGER(__name__).info("--------------------\n")
 
         await progress_bar(
             current=current,
@@ -75,10 +78,12 @@ async def download_torrent(handle, index, message, save_path=DOWNLOAD_DIR):
         )
 
         if current >= total_size:
+            logger.info("Torrent file download complete: %s", file_path)
             break
 
         await asyncio.sleep(1)
     
+    logger.debug("Returning downloaded file path %s", file_path)
     return file_path, clean_filename(path.name)
 
 

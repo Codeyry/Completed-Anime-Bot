@@ -10,25 +10,34 @@ import asyncio
 import libtorrent as lt
 import os, time
 
-from config import DB_CHANNEL_ID, DOWNLOAD_DIR, POST_CHANNEL_ID, LOGGER, ANIME_POST_TEMPLATE
+from config import DB_CHANNEL_ID, DOWNLOAD_DIR, POST_CHANNEL_ID, LOGGER, ANIME_POST_TEMPLATE, DEV_MODE
 import re
+
+logger = LOGGER(__name__)
 
 
 def extract_anime_name(category: str) -> str:
-    return re.sub(r'\s*-\s*720$', '', category).strip()   
+    anime_name = re.sub(r'\s*-\s*720$', '', category).strip()
+    logger.debug("Extracted anime name %s from category %s", anime_name, category)
+    return anime_name
 
 
 async def wait_metadata(handle, timeout=300):
+    logger.info("Waiting for torrent metadata (timeout=%ss)", timeout)
     start = asyncio.get_event_loop().time()
     while not handle.has_metadata():
         if asyncio.get_event_loop().time() - start > timeout:
+            logger.error("Torrent metadata was not received within %ss", timeout)
             raise TimeoutError("Metadata not received in time")
         await asyncio.sleep(1)
+    logger.info("Torrent metadata received")
 
 async def download_thumbnail(url, id):
     if id is None:
-        LOGGER(__name__).error(" guid is none type")
+        logger.error(" guid is none type")
+        logger.error("Cannot download thumbnail without AniList ID")
 
+    logger.debug("Downloading thumbnail for AniList ID %s", id)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             response.raise_for_status()
@@ -39,6 +48,7 @@ async def download_thumbnail(url, id):
     with open(thumb_path, "wb") as file:
         file.write(image_data)
 
+    logger.info("Thumbnail saved to %s", thumb_path)
     return thumb_path
 
 
@@ -49,6 +59,7 @@ def normalize_anilist_title(title: str) -> str:
         title,
         flags=re.IGNORECASE
     )
+    logger.debug("Normalized AniList title: %s", title)
     return title
 
 
@@ -68,6 +79,7 @@ session = lt.session({
 
 async def process_entry(client, entry, entry_id: str):
     try:
+        logger.info("Starting processing for RSS entry %s", entry_id)
         normal_anime_name = normalize_anilist_title(entry.get("category"))
         anime_name = extract_anime_name(normal_anime_name)
         result = await get_cover_and_anime_id(anime_name)
@@ -75,6 +87,7 @@ async def process_entry(client, entry, entry_id: str):
         magnet_link = entry.get("link")
         # check that magnet_url if its a valid magnet link or not. 
         if not magnet_link.startswith("magnet:?"):
+            logger.error("Invalid magnet URL in entry %s", entry_id)
             raise ValueError("Invalid magnet URL.")
         
         # parse magnet_url using libtorrent 
@@ -85,6 +98,7 @@ async def process_entry(client, entry, entry_id: str):
 
         # Add the magnet torrent to the existing session.
         handle = session.add_torrent(params)
+        logger.info("Torrent added for %s", anime_name)
 
         try: 
             # Wait until torrent metadata becomes available.
@@ -100,6 +114,7 @@ async def process_entry(client, entry, entry_id: str):
             ]
 
             if not video_files:
+                logger.warning("No video files found for entry %s", entry_id)
                 raise ValueError("video files are empty")
             
 
@@ -107,12 +122,13 @@ async def process_entry(client, entry, entry_id: str):
                 chat_id=DB_CHANNEL_ID,
                 text="... !!"
                 )
+            logger.info("Found %d video files for %s", len(video_files), anime_name)
 
             # Download, upload, and process each video.
             for position, index in enumerate(video_files):
 
                 file_path, filename = await download_torrent(handle, index, message)
-                print("file_path: ", file_path)
+                logger.info("Downloaded video file: %s", file_path)
 
                 thumb_file = await download_thumbnail(result.get("cover"), result.get("id"))
 
@@ -130,8 +146,10 @@ async def process_entry(client, entry, entry_id: str):
                         handle,
                     )
                 )
+                logger.info("Uploaded %s to database channel", filename)
 
                 os.remove(file_path) # cleanup: delete file after sending to tg
+                logger.debug("Removed local video file %s", file_path)
 
                 if position == 0:
                     first_db_file = db_file
@@ -141,6 +159,7 @@ async def process_entry(client, entry, entry_id: str):
 
             # Link generation
             buttons = await link_gen_batch(first_db_file, last_db_file)
+            logger.debug("Batch link buttons prepared")
 
             animeId = result.get("id")
             if animeId is not None:
@@ -162,13 +181,14 @@ async def process_entry(client, entry, entry_id: str):
                 reply_markup=buttons,
                 parse_mode=ParseMode.HTML
             )
+            logger.info("Published anime post for %s", normal_anime_name)
 
             await mark_entry(entry_id)
+            logger.info("Finished processing RSS entry %s", entry_id)
 
 
         finally:
             handle.pause()
             session.remove_torrent(handle)
     except Exception:
-        import traceback
-        traceback.print_exc()
+        logger.exception("Failed to process RSS entry %s", entry_id)

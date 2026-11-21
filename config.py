@@ -73,7 +73,7 @@ CMD_MSG = os.environ.get(
 # LOGGER SETUP
 LOG_FILE_NAME = "onlynoco.txt"
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG if DEV_MODE else logging.INFO,
     format="[%(asctime)s - %(levelname)s] - %(name)s - %(message)s",
     datefmt='%d-%b-%y %H:%M:%S',
     handlers=[

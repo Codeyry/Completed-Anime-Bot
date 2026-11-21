@@ -1,15 +1,18 @@
 import os, random
-from config import START_PIC, START_MSG, ABOUT_MSG, CMD_MSG
+from config import START_PIC, START_MSG, ABOUT_MSG, CMD_MSG, LOGGER, DEV_MODE
 from pyrogram import Client, filters
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton 
 from pyrogram.enums import ParseMode, ChatAction
 from bot import Bot
 from database.database import add_user
 
+logger = LOGGER(__name__)
+
 
 #-- 🫆 start command --#
 @Client.on_message(filters.command("start") & filters.private)
 async def start_command(client: Client, message: Message):
+  logger.info("Start command received from user %s", message.from_user.id)
   # chat action
   await client.send_chat_action(message.chat.id, ChatAction.PLAYING)
   
@@ -32,6 +35,7 @@ async def start_command(client: Client, message: Message):
   )
 
   photo = random.choice(START_PIC)
+  logger.debug("Selected start photo for user %s", message.from_user.id)
   
   # send a photo with msg 
   await message.reply_photo(
@@ -40,11 +44,13 @@ async def start_command(client: Client, message: Message):
     mention = message.from_user.mention),
     reply_markup = reply_btns
   )
+  logger.info("Start response sent to user %s", message.from_user.id)
   
 
 #-- Callback Queries --#
 @Client.on_callback_query(filters.regex("^(about|cmd|back)$"))
 async def callback_queries(client: Bot, query: CallbackQuery):
+    logger.info("Callback %s received from user %s", query.data, query.from_user.id)
     #-- About --#
     if query.data == "about":
         await query.message.edit_text(
@@ -60,6 +66,7 @@ async def callback_queries(client: Bot, query: CallbackQuery):
                 ]
             )
         )
+        logger.debug("Displayed About content")
     
     #-- Commands --#
     elif query.data == "cmd":
@@ -76,6 +83,7 @@ async def callback_queries(client: Bot, query: CallbackQuery):
                 ]
             )
         )
+        logger.debug("Displayed command list")
     
     #-- Back Callback --#
     elif query.data == "back":
@@ -91,4 +99,5 @@ async def callback_queries(client: Bot, query: CallbackQuery):
                 ]
             )
         )
+        logger.debug("Returned to start content")
 
