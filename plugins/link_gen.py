@@ -20,10 +20,10 @@ async def decode(base64_string):
 
 async def link_gen_batch(first_file, last_file):
   try:
-    encoded = encode(f"get-{first_file.id * abs(DB_CHANNEL_ID)-{last_file.id * abs(DB_CHANNEL_ID)}}")
+    encoded = encode(f"get-{first_file.id * abs(DB_CHANNEL_ID)}-{last_file.id * abs(DB_CHANNEL_ID)}")
     start_link = f"https://t.me/{BOT_USERNAME}?start={encoded}"
     buttons = InlineKeyboardMarkup([[InlineKeyboardButton("• ᴅᴏᴡɴʟᴏᴀᴅ ‹› ᴡᴀᴛᴄʜ •", url=start_link)]])
-    return buttons, start_link
+    return buttons
   except Exception as e:
     logger.error(f"Link Generation Failed! {e}")
     return None

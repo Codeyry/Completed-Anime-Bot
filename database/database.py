@@ -27,20 +27,19 @@ async def del_user(user_id: int):
 
 
 # check if any entry is already processed or not 
-async def is_entry_already_processed(entry_id: int):
-  cursor = _entries.find({}, {"_id": entry_id}).limit(1)
-  return bool(await cursor.to_list(length=1))
+async def is_entry_already_processed(entry_id: str) -> bool:
+  return await _entries.find_one({"_id": entry_id}) is not None
 
 
 
 
 # mark item to be already processed
-async def mark_entry(entry_id):
-  await _entries.update_one(
-    {"_id": entry_id},
-    {"$setOnInsert": {"_Id": entry_id}},
-    upsert=True
-  )
+async def mark_entry(entry_id: str):
+    await _entries.update_one(
+      {"_id": entry_id},
+      {"$setOnInsert": {"processed": True}},
+      upsert=True
+    )
 
 
 

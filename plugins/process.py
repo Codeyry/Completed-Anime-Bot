@@ -160,7 +160,7 @@ async def process_entry(client, entry, entry_id: str):
                     plot=result.get("description")
                 ),
                 reply_markup=buttons,
-                parse_mode=ParseMode.MARKDOWN
+                parse_mode=ParseMode.HTML
             )
 
             await mark_entry(entry_id)
